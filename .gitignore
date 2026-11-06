@@ -33,3 +33,11 @@ backups/
 # Logs and editor files
 *.log
 *.code-workspace
+
+# Local AI-tool and MCP settings
+.codex/
+.cursor/
+.gemini/
+.mcp.json
+.vscode/mcp.json
+
