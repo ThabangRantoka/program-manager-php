@@ -41,3 +41,4 @@ backups/
 .mcp.json
 .vscode/mcp.json
 
+/program-manager-angular/.vscode/mcp.json
