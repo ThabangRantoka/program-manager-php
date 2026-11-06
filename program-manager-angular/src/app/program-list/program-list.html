@@ -1,0 +1,37 @@
+<h2>Programs</h2>
+
+@if (loading()) {
+  <div class="loading-message">
+    Loading programs...
+  </div>
+} @else if (errorMessage()) {
+  <div class="error-message">
+    {{ errorMessage() }}
+  </div>
+} @else if (programs().length === 0) {
+  <div class="empty-message">
+    No programs are available.
+  </div>
+} @else {
+  <table>
+    <thead>
+      <tr>
+        <th>Name</th>
+        <th>Duration (min)</th>
+        <th>Time Slot</th>
+        <th>Channel</th>
+      </tr>
+    </thead>
+
+    <tbody>
+      @for (program of programs(); track $index) {
+        <tr>
+          <td>{{ program.name }}</td>
+          <td>{{ program.duration }}</td>
+          <td>{{ program.time_slot }}</td>
+          <td>{{ program.channel }}</td>
+        </tr>
+      }
+    </tbody>
+  </table>
+}

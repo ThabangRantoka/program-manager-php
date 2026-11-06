@@ -1,0 +1,53 @@
+<section class="dashboard-page">
+  <header class="dashboard-header">
+    <div>
+      <p class="eyebrow">PROGRAM MANAGER</p>
+      <h1>Your programme dashboard</h1>
+      <p class="intro">View your schedule and manage your programmes.</p>
+    </div>
+
+    <button
+      class="logout-button"
+      type="button"
+      (click)="logout()"
+      [disabled]="loggingOut()"
+    >
+      {{ loggingOut() ? 'Logging out...' : 'Log out' }}
+    </button>
+  </header>
+
+  <section class="account-card" aria-label="Your account">
+    <div class="avatar" aria-hidden="true">
+      {{ auth.username?.charAt(0)?.toUpperCase() }}
+    </div>
+
+    <div class="account-details">
+      <span class="account-label">Logged in as</span>
+      <strong>{{ auth.username }}</strong>
+    </div>
+
+    <span class="role-badge">{{ auth.role }}</span>
+  </section>
+
+  @if (logoutError()) {
+    <p class="logout-error" role="alert">
+      {{ logoutError() }}
+    </p>
+  }
+
+  @if (auth.hasRole('scheduler', 'admin')) {
+    <section class="content-card">
+      <app-add-program></app-add-program>
+    </section>
+  }
+
+  <section class="content-card">
+    <div class="program-list-scroll">
+      <app-program-list></app-program-list>
+    </div>
+  </section>
+
+  <footer class="dashboard-footer">
+    Program Manager · Your schedule, organised.
+  </footer>
+</section>

@@ -1,0 +1,43 @@
+<h2>Add New Program</h2>
+
+<div *ngIf="message" class="message">
+  {{ message }}
+</div>
+
+<!-- 1. Added #programForm="ngForm" to track the form's validity -->
+<form (ngSubmit)="onSubmit()" #programForm="ngForm">
+  
+  <div class="form-group">
+    <label>Program Name:</label>
+    <!-- 2. Added minlength="3" so they can't submit a 1-letter name -->
+    <input type="text" [(ngModel)]="program.name" name="name" required minlength="3">
+  </div>
+
+  <div class="form-group">
+    <label>Duration (minutes):</label>
+    <!-- 3. Added min="1" to prevent 0 or negative durations -->
+    <input type="number" [(ngModel)]="program.duration" name="duration" required min="1">
+  </div>
+
+  <div class="form-group">
+    <label>Time Slot:</label>
+    <input type="text" [(ngModel)]="program.time_slot" name="time_slot" placeholder="e.g. 08:00" required>
+  </div>
+
+  <div class="form-group">
+    <label>Channel:</label>
+    <select [(ngModel)]="program.channel" name="channel" required>
+      <option value="">Select channel</option>
+      <option value="SABC1">SABC1</option>
+      <option value="SABC2">SABC2</option>
+      <option value="SABC3">SABC3</option>
+      <option value="eTV">eTV</option>
+      <option value="Mzansi Magic">Mzansi Magic</option>
+      <option value="M-Net">M-Net</option>
+      <option value="SuperSport">SuperSport</option>
+    </select>
+  </div>
+
+  <!-- 4. Added [disabled]="!programForm.valid" to grey out the button if the form is incomplete -->
+  <button type="submit" [disabled]="!programForm.valid">Add Program</button>
+</form>

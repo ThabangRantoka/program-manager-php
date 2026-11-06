@@ -1,0 +1,1 @@
+export const API_BASE = 'https://intern1.pfunzo.africa/api';

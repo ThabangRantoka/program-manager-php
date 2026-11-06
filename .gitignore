@@ -1,0 +1,35 @@
+# Private database configuration
+/config.php
+/database.php
+
+# Admin setup script may contain credentials
+/setup_admin.php
+
+# Environment secrets
+.env
+.env.*
+!.env.example
+
+# Dependencies and generated builds
+node_modules/
+dist/
+.angular/
+out-tsc/
+
+# Database dumps and backups
+*.sql
+*.sql.gz
+*.zip
+*.tar.gz
+*.bak
+backups/
+
+# Private keys and certificates
+*.key
+*.pem
+*.pfx
+*.p12
+
+# Logs and editor files
+*.log
+*.code-workspace

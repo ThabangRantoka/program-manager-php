@@ -1,0 +1,43 @@
+.container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 20px;
+  font-family: Arial, sans-serif;
+}
+
+h1 {
+  color: #4CAF50;
+}
+/* Remove the dashboard wrapper only on the login page. */
+.container:has(app-login) {
+  width: 100%;
+  max-width: none;
+  min-height: 100vh;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  border-radius: 0;
+  background: #e8edef;
+  box-shadow: none;
+}
+
+/* The login card has its own heading. */
+.container:has(app-login) > h1 {
+  display: none;
+}
+
+.container:has(app-dashboard) {
+  width: 100%;
+  max-width: none;
+  min-height: 100vh;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  border-radius: 0;
+  background: #e8edef;
+  box-shadow: none;
+}
+
+.container:has(app-dashboard) > h1 {
+  display: none;
+}

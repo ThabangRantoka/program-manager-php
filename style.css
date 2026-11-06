@@ -64,3 +64,21 @@ button {
 button:hover {
     background-color: #45a049;
 }
+
+.login-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 15px;
+    padding: 15px;
+    margin-bottom: 20px;
+    background: #edf9ee;
+    border: 1px solid #b9dbbd;
+    border-radius: 6px;
+}
+
+.login-header p,
+.login-header form {
+    margin: 0;
+}
