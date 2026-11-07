@@ -301,9 +301,12 @@ $total_programs = count($programs);
             border-bottom: 1px solid #ddd;
         }
     </style>
+
+<link rel="stylesheet" href="dashboard.css?v=1">
+
 </head>
 
-<body>
+<body class="dashboard-page">
     <h1>Program Manager</h1>
 
     <div class="login-header">
@@ -467,7 +470,14 @@ $total_programs = count($programs);
                 No programs found. Try adjusting your search or filters.
             </p>
         <?php else: ?>
-            <div class="table-container">
+
+
+            <div
+    class="table-container"
+    role="region"
+    aria-label="Programme list"
+    tabindex="0"
+>
                 <table>
                     <thead>
                         <tr>

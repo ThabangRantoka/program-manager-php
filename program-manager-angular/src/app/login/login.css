@@ -1,58 +1,70 @@
 :host {
   display: block;
-  color: #283940;
-  font-family: Arial, sans-serif;
 }
 
 * {
   box-sizing: border-box;
 }
 
+body {
+  margin: 0;
+}
+
+body,
 .login-page {
-  min-height: 100vh;
-  min-height: 100dvh;
-  padding: 48px 24px;
-  display: grid;
-  place-items: center;
-  position: relative;
-  overflow: hidden;
+  font-family: Arial, sans-serif;
+  color: #283940;
   background: #e8edef;
 }
 
+.auth-page,
+.login-page {
+  min-height: 100vh;
+  min-height: 100dvh;
+  padding: 36px 20px;
+  display: grid;
+  place-items: center;
+  position: relative;
+  isolation: isolate;
+}
+
+.card,
 .login-card {
   position: relative;
   z-index: 1;
   width: 100%;
-  max-width: 420px;
-  padding: 42px 36px;
-  border-radius: 32px;
+  max-width: 410px;
+  margin: 0;
+  padding: 30px;
+  border-radius: 28px;
   background: #e8edef;
-  text-align: center;
   box-shadow:
-    18px 18px 38px #c5ced2,
-    -18px -18px 38px #ffffff;
+    16px 16px 34px #c5ced2,
+    -16px -16px 34px #ffffff;
+  text-align: center;
+  animation: arrive 0.45s ease-out;
 }
 
 .lock-icon {
-  width: 76px;
-  height: 76px;
-  margin: 0 auto 26px;
+  width: 64px;
+  height: 64px;
+  margin: 0 auto 20px;
   display: grid;
   place-items: center;
   border-radius: 50%;
-  color: #0874b9;
+  color: #075f99;
   box-shadow:
-    7px 7px 15px #c5ced2,
-    -7px -7px 15px #ffffff;
+    6px 6px 14px #c5ced2,
+    -6px -6px 14px #ffffff;
 }
 
 .lock-icon svg {
-  width: 32px;
-  height: 32px;
+  width: 28px;
+  height: 28px;
 }
 
 .brand {
-  margin: 0 0 10px;
+  margin: 0 0 12px;
   color: #52636b;
   font-size: 11px;
   font-weight: 700;
@@ -63,273 +75,227 @@ h1 {
   margin: 0;
   padding: 0;
   border: 0;
+  font-size: 28px;
   color: #283940;
-  font-size: 30px;
-  font-weight: 700;
+  line-height: 1.2;
 }
 
 .subtitle {
-  margin: 12px 0 30px;
-  color: #52636b;
+  margin: 12px 0 24px;
   font-size: 14px;
+  color: #52636b;
   line-height: 1.6;
 }
 
-.field {
-  margin-bottom: 22px;
+form {
   text-align: left;
+}
+
+.field {
+  margin: 0;
 }
 
 label {
   display: block;
-  margin: 0 0 9px 4px;
-  color: #41545e;
-  font-size: 13px;
+  margin: 18px 0 8px;
+  font-size: 14px;
   font-weight: 700;
+  color: #41545e;
 }
 
-input {
+input:not([type="hidden"]) {
   width: 100%;
-  min-height: 54px;
-  padding: 16px 18px;
+  min-height: 50px;
+  padding: 13px 15px;
   border: 2px solid transparent;
-  border-radius: 15px;
+  border-radius: 14px;
   background: #e8edef;
   color: #283940;
   font: inherit;
   font-size: 15px;
   box-shadow:
-    inset 6px 6px 11px #cbd3d7,
-    inset -6px -6px 11px #ffffff;
-  transition: border-color 160ms ease;
+    inset 5px 5px 10px #cbd3d7,
+    inset -5px -5px 10px #ffffff;
 }
 
 input::placeholder {
-  color: #64757d;
+  color: #52636b;
 }
 
 input:focus {
-  outline: none;
+  outline: 0;
   border-color: #0874b9;
 }
 
-.login-button {
-  width: 100%;
-  min-height: 52px;
-  margin-top: 8px;
-  padding: 14px;
+.password-field {
+  position: relative;
+}
+
+.password-field input {
+  padding-right: 70px;
+}
+
+.password-toggle {
+  position: absolute;
+  right: 7px;
+  top: 3px;
+  min-height: 44px;
+  padding: 0 8px;
+  background: transparent;
   border: 0;
-  border-radius: 15px;
-  background: #e8edef;
-  color: #075f99;
+  border-radius: 8px;
+  color: #075580;
+  font: inherit;
+  font-size: 12px;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.login-button,
+button[type="submit"] {
+  display: block;
+  width: 100%;
+  min-height: 50px;
+  margin-top: 24px;
+  padding: 12px;
+  border: 0;
+  border-radius: 14px;
+  background: linear-gradient(110deg, #075f99, #006a9c);
+  color: #ffffff;
   font: inherit;
   font-weight: 700;
   cursor: pointer;
   box-shadow:
     6px 6px 12px #c5ced2,
     -6px -6px 12px #ffffff;
-  transition: transform 160ms ease;
+  transition:
+    transform 0.2s,
+    background 0.2s;
 }
 
-.login-button:hover:not(:disabled) {
+button[type="submit"]:hover:not(:disabled) {
+  background: #075580;
   transform: translateY(-2px);
 }
 
-.login-button:active:not(:disabled) {
-  transform: translateY(0);
-  box-shadow:
-    inset 4px 4px 8px #c5ced2,
-    inset -4px -4px 8px #ffffff;
-}
-
-.login-button:disabled {
-  opacity: 0.55;
+button[type="submit"]:disabled {
+  background: #52636b;
   cursor: not-allowed;
 }
 
-.login-button:focus-visible,
+button:focus-visible,
 a:focus-visible {
   outline: 3px solid #0874b9;
-  outline-offset: 5px;
+  outline-offset: 4px;
 }
 
-.error-message {
-  padding: 12px;
-  border: 1px solid #c77d7d;
-  border-radius: 12px;
-  background: #fff0f0;
-  color: #942525;
-  font-size: 14px;
-  line-height: 1.5;
+a {
+  color: #075580;
+  font-weight: 700;
+  text-underline-offset: 3px;
 }
 
-.account-note {
-  margin: 28px 0 0;
+.account-note,
+.card > p:last-child {
+  margin: 24px 0 0;
   color: #52636b;
   font-size: 13px;
   line-height: 1.8;
 }
 
-.account-note a {
-  display: inline-block;
-  margin-left: 4px;
-  color: #075f99;
-  font-weight: 700;
-  text-underline-offset: 3px;
+.hint {
+  margin: 8px 0 0;
+  color: #52636b;
+  font-size: 12px;
+  line-height: 1.5;
+}
+
+.errors,
+.error-message,
+.success {
+  padding: 12px;
+  margin: 16px 0;
+  border: 1px solid #b96767;
+  border-radius: 12px;
+  background: #fff0f0;
+  color: #842222;
+  font-size: 14px;
+  line-height: 1.5;
+  text-align: left;
+}
+
+.errors ul {
+  margin: 0;
+  padding-left: 20px;
+}
+
+.success {
+  background: #edf9ee;
+  border-color: #78a77d;
+  color: #205c29;
 }
 
 .decoration {
-  position: absolute;
+  position: fixed;
+  z-index: -1;
+  pointer-events: none;
   border-radius: 50%;
   background: #e8edef;
   box-shadow:
     12px 12px 26px #c5ced2,
     -12px -12px 26px #ffffff;
-  pointer-events: none;
+  animation: float 9s ease-in-out infinite;
 }
 
 .circle-one {
-  width: 170px;
-  height: 170px;
-  top: 12%;
-  left: 12%;
+  width: 150px;
+  height: 150px;
+  top: 15%;
+  left: 10%;
 }
 
 .circle-two {
-  width: 120px;
-  height: 120px;
+  width: 110px;
+  height: 110px;
   bottom: 12%;
-  right: 12%;
+  right: 10%;
+  animation-delay: -4s;
+}
+
+@keyframes float {
+  50% {
+    transform: translateY(-18px);
+  }
+}
+
+@keyframes arrive {
+  from {
+    opacity: 0;
+    transform: translateY(12px);
+  }
 }
 
 @media (max-width: 600px) {
-  .login-page {
-    padding: 32px 20px;
-  }
-
-  .login-card {
-    padding: 32px 24px;
-    border-radius: 24px;
-  }
-
   .decoration {
     display: none;
   }
+
+  .auth-page,
+  .login-page {
+    padding: 24px 16px;
+  }
+
+  .card,
+  .login-card {
+    padding: 26px 22px;
+  }
 }
 
 @media (prefers-reduced-motion: reduce) {
-  input,
-  .login-button {
-    transition: none;
-  }
-}
-/* Animated blue/cyan layer inside the login button */
-.login-button {
-  position: relative;
-  isolation: isolate;
-  overflow: hidden;
-  transition:
-    color 0.3s ease,
-    transform 0.3s ease,
-    box-shadow 0.3s ease;
-}
-
-.login-button::before {
-  content: "";
-  position: absolute;
-  inset: 0;
-  z-index: -1;
-  border-radius: inherit;
-
-  background: linear-gradient(
-    110deg,
-    #006cff,
-    #00cfff,
-    #006cff
-  );
-
-  background-size: 200% 100%;
-  transform: translateY(100%);
-  transition: transform 0.35s ease;
-}
-
-/* Raise the colour layer when hovered or keyboard-focused */
-.login-button:hover:not(:disabled)::before,
-.login-button:focus-visible:not(:disabled)::before {
-  transform: translateY(0);
-  animation: button-colour-flow 3s linear infinite;
-}
-
-.login-button:hover:not(:disabled),
-.login-button:focus-visible:not(:disabled) {
-  color: #ffffff;
-  transform: translateY(-3px);
-  box-shadow: 0 10px 25px rgba(0, 114, 255, 0.3);
-}
-
-/* Small press effect */
-.login-button:active:not(:disabled) {
-  transform: translateY(0) scale(0.97);
-}
-
-/* Move the gradient across the button */
-@keyframes button-colour-flow {
-  from {
-    background-position: 0% 50%;
-  }
-
-  to {
-    background-position: 200% 50%;
-  }
-}
-
-/* Floating background circles */
-.decoration {
-  animation: circle-float 9s ease-in-out infinite;
-}
-
-.circle-two {
-  animation-delay: -4s;
-  animation-duration: 11s;
-}
-
-@keyframes circle-float {
-  0%, 100% {
-    transform: translateY(0);
-  }
-
-  50% {
-    transform: translateY(-22px);
-  }
-}
-
-/* Lift and slightly rotate the lock icon */
-.lock-icon {
-  transition: transform 0.4s ease;
-}
-
-.lock-icon:hover {
-  transform: translateY(-5px) rotate(8deg);
-}
-
-/* Respect users who have reduced motion enabled */
-@media (prefers-reduced-motion: reduce) {
-  .decoration,
-  .login-button:hover:not(:disabled)::before,
-  .login-button:focus-visible:not(:disabled)::before {
-    animation: none;
-  }
-
-  .login-button,
-  .login-button::before,
-  .lock-icon {
-    transition: none;
-  }
-
-  .lock-icon:hover,
-  .login-button:hover:not(:disabled),
-  .login-button:focus-visible:not(:disabled),
-  .login-button:active:not(:disabled) {
-    transform: none;
+  *,
+  *::before,
+  *::after {
+    animation: none !important;
+    transition: none !important;
   }
 }

@@ -1,0 +1,248 @@
+*,
+*::before,
+*::after {
+    box-sizing: border-box;
+}
+
+body.delete-page {
+    margin: 0;
+    min-height: 100vh;
+    min-height: 100dvh;
+    padding: 40px 20px;
+    display: grid;
+    place-items: center;
+    background: #e7ebf0;
+    color: #303943;
+    font-family: "Segoe UI", Arial, sans-serif;
+    line-height: 1.5;
+}
+
+.delete-card {
+    width: 100%;
+    max-width: 590px;
+    padding: 30px 36px 36px;
+    border-radius: 28px;
+    background: #e7ebf0;
+    box-shadow:
+        16px 16px 34px #c5ced8,
+        -16px -16px 34px #ffffff;
+}
+
+.back-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    min-height: 44px;
+    color: #075f99;
+    font-size: 14px;
+    font-weight: 600;
+    text-decoration: none;
+}
+
+.back-link span {
+    font-size: 21px;
+}
+
+.back-link:hover {
+    text-decoration: underline;
+    text-underline-offset: 4px;
+}
+
+.delete-header {
+    margin: 18px 0 26px;
+    text-align: center;
+}
+
+.warning-icon {
+    width: 76px;
+    height: 76px;
+    margin: 0 auto 22px;
+    display: grid;
+    place-items: center;
+    border-radius: 50%;
+    color: #b52d3a;
+    box-shadow:
+        7px 7px 15px #c5ced8,
+        -7px -7px 15px #ffffff;
+}
+
+.warning-icon svg {
+    width: 32px;
+    height: 32px;
+}
+
+.brand {
+    margin: 0 0 9px;
+    color: #52616f;
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 2px;
+}
+
+h1 {
+    margin: 0;
+    font-size: clamp(26px, 5vw, 32px);
+    line-height: 1.25;
+    letter-spacing: -0.7px;
+}
+
+.subtitle {
+    margin: 12px 0 0;
+    color: #52616f;
+    font-size: 14px;
+}
+
+.program-details {
+    margin: 0;
+    padding: 12px 20px;
+    border-radius: 18px;
+    box-shadow:
+        inset 5px 5px 10px #cbd3dd,
+        inset -5px -5px 10px #ffffff;
+}
+
+.detail-row {
+    display: grid;
+    grid-template-columns: 110px minmax(0, 1fr);
+    gap: 16px;
+    padding: 12px 0;
+}
+
+.detail-row + .detail-row {
+    border-top: 1px solid #ccd6df;
+}
+
+dt {
+    color: #52616f;
+    font-size: 14px;
+}
+
+dd {
+    margin: 0;
+    color: #303943;
+    font-size: 14px;
+    font-weight: 600;
+    overflow-wrap: anywhere;
+}
+
+.warning-note {
+    margin: 24px 0;
+    padding: 14px 16px;
+    border: 1px solid #d6a3aa;
+    border-radius: 13px;
+    background: #f6e7ea;
+    color: #862735;
+    font-size: 13px;
+}
+
+.warning-note strong {
+    display: block;
+    margin-bottom: 4px;
+}
+
+.delete-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 14px;
+}
+
+.cancel-button,
+.delete-button {
+    flex: 1 1 180px;
+    min-height: 48px;
+    padding: 13px 18px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 9px;
+    border: 0;
+    border-radius: 13px;
+    font: inherit;
+    font-size: 14px;
+    font-weight: 600;
+    text-decoration: none;
+    cursor: pointer;
+    transition:
+        background-color 160ms ease,
+        box-shadow 160ms ease;
+}
+
+.cancel-button {
+    background: #e7ebf0;
+    color: #075f99;
+    box-shadow:
+        5px 5px 10px #c5ced8,
+        -5px -5px 10px #ffffff;
+}
+
+.cancel-button:hover {
+    background: #dce5ee;
+}
+
+.delete-button {
+    background: #b52d3a;
+    color: #ffffff;
+    box-shadow: 5px 5px 12px #c5ced8;
+}
+
+.delete-button:hover {
+    background: #942330;
+}
+
+.delete-button svg {
+    width: 18px;
+    height: 18px;
+    flex-shrink: 0;
+}
+
+a:focus-visible,
+button:focus-visible {
+    outline: 3px solid #0874b9;
+    outline-offset: 5px;
+}
+
+.error-message {
+    padding: 14px 16px;
+    border: 1px solid #d59a9a;
+    border-radius: 13px;
+    background: #fff0f0;
+    color: #842525;
+    font-size: 14px;
+}
+
+@media (max-width: 520px) {
+    body.delete-page {
+        padding: 24px 16px;
+    }
+
+    .delete-card {
+        padding: 24px 22px 28px;
+        border-radius: 22px;
+    }
+
+    .program-details {
+        padding: 10px 16px;
+    }
+
+    .detail-row {
+        grid-template-columns: 90px minmax(0, 1fr);
+        gap: 10px;
+    }
+
+    .delete-actions {
+        flex-direction: column;
+    }
+
+    .cancel-button,
+    .delete-button {
+        flex: auto;
+        width: 100%;
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .cancel-button,
+    .delete-button {
+        transition: none;
+    }
+}

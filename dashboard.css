@@ -1,0 +1,429 @@
+/* Styles only the PHP dashboard. */
+.dashboard-page {
+  --surface: #e7ebf0;
+  --text: #303943;
+  --muted: #52616f;
+  --blue: #075f99;
+  --shadow: #c5ced8;
+  --light: #ffffff;
+
+  box-sizing: border-box;
+  max-width: 1280px;
+  min-height: 100vh;
+  margin: 0 auto;
+  padding: 36px 28px 60px;
+
+  background: var(--surface);
+  color: var(--text);
+  font-family: "Segoe UI", Arial, sans-serif;
+  font-size: 15px;
+  line-height: 1.6;
+}
+
+.dashboard-page *,
+.dashboard-page *::before,
+.dashboard-page *::after {
+  box-sizing: border-box;
+}
+
+/* Page headings */
+.dashboard-page > h1 {
+  margin: 0 0 24px;
+  padding: 0;
+  border: 0;
+  color: var(--text);
+  font-size: clamp(28px, 4vw, 38px);
+  font-weight: 700;
+  letter-spacing: -1px;
+}
+
+.dashboard-page h2 {
+  margin: 0 0 20px;
+  color: var(--text);
+  font-size: 22px;
+  font-weight: 700;
+  letter-spacing: -0.4px;
+}
+
+.dashboard-page > h2 {
+  margin-top: 32px;
+}
+
+/* Logged-in user and logout */
+.dashboard-page .login-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 16px;
+
+  margin-bottom: 32px;
+  padding: 20px 24px;
+  border: 0;
+  border-radius: 20px;
+
+  background: var(--surface);
+  box-shadow:
+    8px 8px 18px var(--shadow),
+    -8px -8px 18px var(--light);
+}
+
+.dashboard-page .login-header p {
+  margin: 0;
+  color: var(--muted);
+}
+
+.dashboard-page .login-header strong {
+  color: var(--blue);
+}
+
+.dashboard-page .login-header form {
+  width: auto;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  box-shadow: none;
+}
+
+/* Shared panels */
+.dashboard-page .search-container,
+.dashboard-page .add-program-form,
+.dashboard-page .table-container {
+  border: 0;
+  border-radius: 22px;
+  background: var(--surface);
+  box-shadow:
+    10px 10px 24px var(--shadow),
+    -10px -10px 24px var(--light);
+}
+
+/* Search section */
+.dashboard-page .search-container {
+  margin-bottom: 34px;
+  padding: 26px;
+}
+
+.dashboard-page .search-form {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) auto;
+  align-items: end;
+  gap: 20px;
+
+  margin: 0;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  box-shadow: none;
+}
+
+.dashboard-page .search-form .form-group {
+  min-width: 0;
+  margin: 0;
+}
+
+.dashboard-page .search-form .form-group:last-child {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+
+.dashboard-page .clear-filters {
+  display: inline-flex;
+  align-items: center;
+  min-height: 46px;
+  margin: 0;
+  padding: 0 4px;
+  white-space: nowrap;
+}
+
+/* Compact add-program form */
+.dashboard-page .add-program-form {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 20px;
+
+  width: 100%;
+  max-width: none;
+  margin: 0 0 34px;
+  padding: 26px;
+}
+
+.dashboard-page .add-program-form .form-group {
+  min-width: 0;
+  margin: 0;
+}
+
+.dashboard-page .add-program-form > button {
+  grid-column: 1 / -1;
+  justify-self: start;
+}
+
+/* Labels and inset inputs */
+.dashboard-page .form-group label {
+  display: block;
+  margin: 0 0 8px;
+  color: #415461;
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.dashboard-page .form-group input,
+.dashboard-page .form-group select {
+  width: 100%;
+  min-width: 0;
+  min-height: 48px;
+  margin: 0;
+  padding: 12px 15px;
+
+  border: 2px solid transparent;
+  border-radius: 13px;
+  background: var(--surface);
+  color: var(--text);
+  font: inherit;
+
+  box-shadow:
+    inset 5px 5px 10px var(--shadow),
+    inset -5px -5px 10px var(--light);
+
+  transition: border-color 160ms ease;
+}
+
+.dashboard-page input::placeholder {
+  color: #596a78;
+  opacity: 1;
+}
+
+.dashboard-page .form-group input:focus,
+.dashboard-page .form-group select:focus {
+  outline: none;
+  border-color: #087fcf;
+}
+
+/* Main action buttons */
+.dashboard-page button {
+  min-height: 46px;
+  padding: 12px 22px;
+  border: 0;
+  border-radius: 12px;
+
+  background: linear-gradient(110deg, #075f99, #006a9c);
+  color: #ffffff;
+  font: inherit;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+
+  box-shadow:
+    5px 5px 12px var(--shadow),
+    -5px -5px 12px var(--light);
+
+  transition:
+    transform 160ms ease,
+    background 160ms ease;
+}
+
+.dashboard-page .search-form button {
+  padding: 12px 22px;
+}
+
+.dashboard-page button:hover {
+  background: #064d7c;
+  transform: translateY(-2px);
+}
+
+.dashboard-page button:active {
+  transform: translateY(0);
+}
+
+/* Logout has a softer appearance */
+.dashboard-page .login-header button {
+  background: var(--surface);
+  color: var(--blue);
+}
+
+.dashboard-page .login-header button:hover {
+  background: #dce5ed;
+}
+
+/* Links and keyboard focus */
+.dashboard-page a,
+.dashboard-page a:visited {
+  color: var(--blue);
+  font-weight: 600;
+  text-underline-offset: 3px;
+}
+
+.dashboard-page button:focus-visible,
+.dashboard-page a:focus-visible,
+.dashboard-page .table-container:focus-visible {
+  outline: 3px solid #087fcf;
+  outline-offset: 4px;
+}
+
+/* Programme table */
+.dashboard-page .table-container {
+  overflow-x: auto;
+  margin-top: 20px;
+  padding: 10px;
+}
+
+.dashboard-page table {
+  width: 100%;
+  min-width: 720px;
+  border-collapse: separate;
+  border-spacing: 0;
+  background: transparent;
+  color: var(--text);
+}
+
+.dashboard-page th {
+  padding: 16px;
+  border: 0;
+  background: #d5e2ec;
+  color: #174f73;
+  font-size: 13px;
+  font-weight: 700;
+  text-align: left;
+  white-space: nowrap;
+}
+
+.dashboard-page th:first-child {
+  border-radius: 13px 0 0 13px;
+}
+
+.dashboard-page th:last-child {
+  border-radius: 0 13px 13px 0;
+}
+
+.dashboard-page td {
+  padding: 15px 16px;
+  border: 0;
+  border-bottom: 1px solid #ccd6df;
+  background: transparent;
+  font-size: 14px;
+  text-align: left;
+}
+
+.dashboard-page tbody tr:last-child td {
+  border-bottom: 0;
+}
+
+.dashboard-page tbody tr:hover {
+  background: #dce6ee;
+}
+
+.dashboard-page td:first-child {
+  font-weight: 600;
+}
+
+.dashboard-page td:last-child {
+  white-space: nowrap;
+}
+
+/* Edit and delete action links */
+.dashboard-page td a {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 40px;
+  padding: 6px 10px;
+  border-radius: 9px;
+  text-decoration: none;
+}
+
+.dashboard-page td a[href^="edit.php"] {
+  color: #075580;
+  background: #d7e6f0;
+}
+
+.dashboard-page td a[href^="delete.php"] {
+  color: #922a36;
+  background: #f2dfe3;
+}
+
+.dashboard-page td a:hover {
+  text-decoration: underline;
+}
+
+/* Validation and status messages */
+.dashboard-page .error-box,
+.dashboard-page .success-box,
+.dashboard-page .empty-message {
+  margin: 20px 0;
+  padding: 16px 20px;
+  border-radius: 14px;
+  line-height: 1.6;
+}
+
+.dashboard-page .error-box {
+  border: 1px solid #ce9696;
+  background: #fff0f0;
+  color: #842525;
+}
+
+.dashboard-page .success-box {
+  border: 1px solid #85af92;
+  background: #edf8f0;
+  color: #235b36;
+}
+
+.dashboard-page .empty-message {
+  border: 1px solid #a8c1d3;
+  background: #e0edf5;
+  color: #254e69;
+}
+
+.dashboard-page hr {
+  margin: 34px 0;
+  border: 0;
+  border-top: 1px solid #c6d1dc;
+}
+
+/* Tablet layout */
+@media (max-width: 950px) {
+  .dashboard-page .search-form {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .dashboard-page .search-form .form-group:last-child {
+    grid-column: 1 / -1;
+  }
+}
+
+/* Phone layout */
+@media (max-width: 600px) {
+  .dashboard-page {
+    padding: 24px 16px 40px;
+  }
+
+  .dashboard-page .login-header,
+  .dashboard-page .search-container,
+  .dashboard-page .add-program-form {
+    padding: 20px;
+    border-radius: 18px;
+  }
+
+  .dashboard-page .search-form,
+  .dashboard-page .add-program-form {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .dashboard-page .add-program-form > button {
+    width: 100%;
+  }
+
+  .dashboard-page h2 {
+    font-size: 20px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .dashboard-page *,
+  .dashboard-page *::before,
+  .dashboard-page *::after {
+    transition: none !important;
+    animation: none !important;
+  }
+}

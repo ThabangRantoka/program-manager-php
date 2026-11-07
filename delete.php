@@ -1,148 +1,144 @@
 <?php
-
 require_once __DIR__ . '/auth.php';
+require_once __DIR__ . '/csrf.php';   // defines csrf_field() etc. if auth.php doesn't
 require_role(['scheduler', 'admin']);
 
-// 1. Get the ID from the URL
-$id = $_GET['id'] ?? null;
+$id = filter_var(
+    $_GET['id'] ?? null,
+    FILTER_VALIDATE_INT,
+    ['options' => ['min_range' => 1]]
+);
 
-// Security: Validate that ID is a positive integer
-if (!$id || !filter_var($id, FILTER_VALIDATE_INT, ['options' => ['min_range' => 1]])) {
-    die("Error: Invalid program ID. <a href='index.php'>Return to Home</a>");
+if ($id === false || $id === null) {
+    http_response_code(400);
+    exit('Invalid programme ID. <a href="index.php">Return to programmes</a>');
 }
 
-// 2. Fetch the program data using a Prepared Statement
-$stmt = $conn->prepare("SELECT * FROM programs WHERE id = ?");
-$stmt->bind_param("i", $id);
+// Load the programme for the confirmation page.
+$stmt = $conn->prepare('SELECT * FROM programs WHERE id = ?');
+$stmt->bind_param('i', $id);
 $stmt->execute();
-$result = $stmt->get_result();
-$program = $result->fetch_assoc();
+$program = $stmt->get_result()->fetch_assoc();
 $stmt->close();
 
-// Security: Check if the program actually exists
 if (!$program) {
-    die("Error: Program not found. It may have already been deleted. <a href='index.php'>Return to Home</a>");
+    http_response_code(404);
+    exit('Programme not found. <a href="index.php">Return to programmes</a>');
 }
 
-// 3. Handle Confirmation (POST)
-if ($_SERVER["REQUEST_METHOD"] == "POST") {
-verify_csrf();
+// Opening this page does not delete anything.
+// Deletion requires a POST request and a valid CSRF token.
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    verify_csrf();
 
-    // Verify the submitted ID matches (prevent tampering)
-    $confirmId = $_POST['confirm_id'] ?? null;
-    
-    if ($confirmId == $id) {
-        // Execute DELETE using a Prepared Statement
-        $deleteStmt = $conn->prepare("DELETE FROM programs WHERE id = ?");
-        $deleteStmt->bind_param("i", $id);
-        
-        if ($deleteStmt->execute()) {
+    $confirmId = filter_var(
+        $_POST['confirm_id'] ?? null,
+        FILTER_VALIDATE_INT,
+        ['options' => ['min_range' => 1]]
+    );
+
+    if ($confirmId !== $id) {
+        http_response_code(400);
+        $error = 'Programme ID mismatch. Nothing was deleted.';
+    } else {
+        try {
+            $deleteStmt = $conn->prepare('DELETE FROM programs WHERE id = ?');
+            $deleteStmt->bind_param('i', $id);
+            $deleted = $deleteStmt->execute();
             $deleteStmt->close();
-            // Redirect to index.php with a success flag
-                $_SESSION['program_success'] = 'Program deleted successfully!';
+
+            if ($deleted) {
+                $_SESSION['program_success'] = 'Programme deleted successfully!';
                 header('Location: index.php', true, 303);
                 exit;
-        } else {
-            $error = "Database Error: " . $conn->error;
+            }
+
+            $error = 'Unable to delete the programme. Please try again.';
+        } catch (mysqli_sql_exception $exception) {
+            error_log($exception->getMessage());
+            $error = 'Unable to delete the programme. It may be linked to other records.';
         }
-        $deleteStmt->close();
-    } else {
-        $error = "Error: ID mismatch. Deletion aborted.";
     }
 }
 ?>
-
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-    <title>Delete Program</title>
-    <link rel="stylesheet" href="style.css">
-    <style>
-        .delete-container {
-            max-width: 500px;
-            margin: 50px auto;
-            background-color: white;
-            padding: 30px;
-            border-radius: 8px;
-            border-left: 5px solid #e74c3c;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-        }
-        .delete-container h2 {
-            color: #e74c3c;
-            margin-top: 0;
-        }
-        .program-details {
-            background-color: #f9f9f9;
-            padding: 15px;
-            border-radius: 4px;
-            margin: 20px 0;
-        }
-        .program-details p {
-            margin: 8px 0;
-        }
-        .program-details strong {
-            display: inline-block;
-            width: 100px;
-            color: #555;
-        }
-        .btn-confirm {
-            background-color: #e74c3c;
-            color: white;
-            padding: 10px 20px;
-            border: none;
-            border-radius: 4px;
-            cursor: pointer;
-            font-size: 14px;
-            margin-right: 10px;
-        }
-        .btn-confirm:hover {
-            background-color: #c0392b;
-        }
-        .btn-cancel {
-            background-color: #95a5a6;
-            color: white;
-            padding: 10px 20px;
-            border: none;
-            border-radius: 4px;
-            text-decoration: none;
-            font-size: 14px;
-            display: inline-block;
-        }
-        .btn-cancel:hover {
-            background-color: #7f8c8d;
-        }
-        .error-message {
-            color: #e74c3c;
-            font-weight: bold;
-            margin-bottom: 15px;
-        }
-    </style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Delete Programme | Program Manager</title>
+    <link rel="stylesheet" href="delete-program.css?v=1">
 </head>
-<body>
-    <div class="delete-container">
-        <h2>⚠️ Confirm Deletion</h2>
+
+<body class="delete-page">
+    <main class="delete-card">
+        <a href="index.php" class="back-link">
+            <span aria-hidden="true">←</span>
+            Back to programmes
+        </a>
+
+        <header class="delete-header">
+            <div class="warning-icon" aria-hidden="true">
+                <svg viewBox="0 0 24 24" fill="none">
+                    <path d="M12 3 2 21h20L12 3Z" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/>
+                    <path d="M12 9v5" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                    <circle cx="12" cy="17.5" r="1" fill="currentColor"/>
+                </svg>
+            </div>
+
+            <p class="brand">PROGRAM MANAGER</p>
+            <h1>Delete programme?</h1>
+            <p class="subtitle">Please review the details before confirming.</p>
+        </header>
 
         <?php if (isset($error)): ?>
-            <p class="error-message"><?php echo htmlspecialchars($error); ?></p>
+            <p class="error-message" role="alert">
+                <?= htmlspecialchars($error, ENT_QUOTES, 'UTF-8') ?>
+            </p>
         <?php endif; ?>
 
-        <p>Are you sure you want to delete this program? This action cannot be undone.</p>
+        <dl class="program-details">
+            <div class="detail-row">
+                <dt>Programme</dt>
+                <dd><?= htmlspecialchars($program['name'], ENT_QUOTES, 'UTF-8') ?></dd>
+            </div>
 
-        <div class="program-details">
-            <p><strong>Program:</strong> <?php echo htmlspecialchars($program['name']); ?></p>
-            <p><strong>Duration:</strong> <?php echo $program['duration']; ?> minutes</p>
-            <p><strong>Time Slot:</strong> <?php echo htmlspecialchars($program['time_slot']); ?></p>
-            <p><strong>Channel:</strong> <?php echo htmlspecialchars($program['channel']); ?></p>
-        </div>
+            <div class="detail-row">
+                <dt>Duration</dt>
+                <dd><?= (int) $program['duration'] ?> minutes</dd>
+            </div>
 
-        <!-- Confirmation Form (POST method ensures deletion only happens on explicit submit) -->
-        <form method="POST" action="delete.php?id=<?php echo $id; ?>">
+            <div class="detail-row">
+                <dt>Time slot</dt>
+                <dd><?= htmlspecialchars(substr((string) $program['time_slot'], 0, 5), ENT_QUOTES, 'UTF-8') ?></dd>
+            </div>
+
+            <div class="detail-row">
+                <dt>Channel</dt>
+                <dd><?= htmlspecialchars($program['channel'], ENT_QUOTES, 'UTF-8') ?></dd>
+            </div>
+        </dl>
+
+        <p class="warning-note" id="delete-warning">
+            <strong>This action cannot be undone.</strong>
+            The programme will be removed from the programme list.
+        </p>
+
+        <form method="POST" action="delete.php?id=<?= (int) $id ?>" class="delete-actions">
             <?= csrf_field() ?>
 
-            <input type="hidden" name="confirm_id" value="<?php echo $id; ?>">
-            <button type="submit" class="btn-confirm">Confirm Delete</button>
-            <a href="index.php" class="btn-cancel">Cancel</a>
+            <input type="hidden" name="confirm_id" value="<?= (int) $id ?>">
+
+            <a href="index.php" class="cancel-button">Keep programme</a>
+
+            <button type="submit" class="delete-button" aria-describedby="delete-warning">
+                <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                    <path d="M3 6h18M9 6V4h6v2M5 6l1 15h12l1-15M10 10v7M14 10v7"
+                          stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+                Delete programme
+            </button>
         </form>
-    </div>
+    </main>
 </body>
 </html>

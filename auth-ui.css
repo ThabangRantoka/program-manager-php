@@ -1,0 +1,301 @@
+:host {
+  display: block;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+}
+
+body,
+.login-page {
+  font-family: Arial, sans-serif;
+  color: #283940;
+  background: #e8edef;
+}
+
+.auth-page,
+.login-page {
+  min-height: 100vh;
+  min-height: 100dvh;
+  padding: 36px 20px;
+  display: grid;
+  place-items: center;
+  position: relative;
+  isolation: isolate;
+}
+
+.card,
+.login-card {
+  position: relative;
+  z-index: 1;
+  width: 100%;
+  max-width: 410px;
+  margin: 0;
+  padding: 30px;
+  border-radius: 28px;
+  background: #e8edef;
+  box-shadow:
+    16px 16px 34px #c5ced2,
+    -16px -16px 34px #ffffff;
+  text-align: center;
+  animation: arrive 0.45s ease-out;
+}
+
+.lock-icon {
+  width: 64px;
+  height: 64px;
+  margin: 0 auto 20px;
+  display: grid;
+  place-items: center;
+  border-radius: 50%;
+  color: #075f99;
+  box-shadow:
+    6px 6px 14px #c5ced2,
+    -6px -6px 14px #ffffff;
+}
+
+.lock-icon svg {
+  width: 28px;
+  height: 28px;
+}
+
+.brand {
+  margin: 0 0 12px;
+  color: #52636b;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 2px;
+}
+
+h1 {
+  margin: 0;
+  padding: 0;
+  border: 0;
+  font-size: 28px;
+  color: #283940;
+  line-height: 1.2;
+}
+
+.subtitle {
+  margin: 12px 0 24px;
+  font-size: 14px;
+  color: #52636b;
+  line-height: 1.6;
+}
+
+form {
+  text-align: left;
+}
+
+.field {
+  margin: 0;
+}
+
+label {
+  display: block;
+  margin: 18px 0 8px;
+  font-size: 14px;
+  font-weight: 700;
+  color: #41545e;
+}
+
+input:not([type="hidden"]) {
+  width: 100%;
+  min-height: 50px;
+  padding: 13px 15px;
+  border: 2px solid transparent;
+  border-radius: 14px;
+  background: #e8edef;
+  color: #283940;
+  font: inherit;
+  font-size: 15px;
+  box-shadow:
+    inset 5px 5px 10px #cbd3d7,
+    inset -5px -5px 10px #ffffff;
+}
+
+input::placeholder {
+  color: #52636b;
+}
+
+input:focus {
+  outline: 0;
+  border-color: #0874b9;
+}
+
+.password-field {
+  position: relative;
+}
+
+.password-field input {
+  padding-right: 70px;
+}
+
+.password-toggle {
+  position: absolute;
+  right: 7px;
+  top: 3px;
+  min-height: 44px;
+  padding: 0 8px;
+  background: transparent;
+  border: 0;
+  border-radius: 8px;
+  color: #075580;
+  font: inherit;
+  font-size: 12px;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.login-button,
+button[type="submit"] {
+  display: block;
+  width: 100%;
+  min-height: 50px;
+  margin-top: 24px;
+  padding: 12px;
+  border: 0;
+  border-radius: 14px;
+  background: linear-gradient(110deg, #075f99, #006a9c);
+  color: #ffffff;
+  font: inherit;
+  font-weight: 700;
+  cursor: pointer;
+  box-shadow:
+    6px 6px 12px #c5ced2,
+    -6px -6px 12px #ffffff;
+  transition:
+    transform 0.2s,
+    background 0.2s;
+}
+
+button[type="submit"]:hover:not(:disabled) {
+  background: #075580;
+  transform: translateY(-2px);
+}
+
+button[type="submit"]:disabled {
+  background: #52636b;
+  cursor: not-allowed;
+}
+
+button:focus-visible,
+a:focus-visible {
+  outline: 3px solid #0874b9;
+  outline-offset: 4px;
+}
+
+a {
+  color: #075580;
+  font-weight: 700;
+  text-underline-offset: 3px;
+}
+
+.account-note,
+.card > p:last-child {
+  margin: 24px 0 0;
+  color: #52636b;
+  font-size: 13px;
+  line-height: 1.8;
+}
+
+.hint {
+  margin: 8px 0 0;
+  color: #52636b;
+  font-size: 12px;
+  line-height: 1.5;
+}
+
+.errors,
+.error-message,
+.success {
+  padding: 12px;
+  margin: 16px 0;
+  border: 1px solid #b96767;
+  border-radius: 12px;
+  background: #fff0f0;
+  color: #842222;
+  font-size: 14px;
+  line-height: 1.5;
+  text-align: left;
+}
+
+.errors ul {
+  margin: 0;
+  padding-left: 20px;
+}
+
+.success {
+  background: #edf9ee;
+  border-color: #78a77d;
+  color: #205c29;
+}
+
+.decoration {
+  position: fixed;
+  z-index: -1;
+  pointer-events: none;
+  border-radius: 50%;
+  background: #e8edef;
+  box-shadow:
+    12px 12px 26px #c5ced2,
+    -12px -12px 26px #ffffff;
+  animation: float 9s ease-in-out infinite;
+}
+
+.circle-one {
+  width: 150px;
+  height: 150px;
+  top: 15%;
+  left: 10%;
+}
+
+.circle-two {
+  width: 110px;
+  height: 110px;
+  bottom: 12%;
+  right: 10%;
+  animation-delay: -4s;
+}
+
+@keyframes float {
+  50% {
+    transform: translateY(-18px);
+  }
+}
+
+@keyframes arrive {
+  from {
+    opacity: 0;
+    transform: translateY(12px);
+  }
+}
+
+@media (max-width: 600px) {
+  .decoration {
+    display: none;
+  }
+
+  .auth-page,
+  .login-page {
+    padding: 24px 16px;
+  }
+
+  .card,
+  .login-card {
+    padding: 26px 22px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation: none !important;
+    transition: none !important;
+  }
+}
