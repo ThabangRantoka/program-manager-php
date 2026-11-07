@@ -521,5 +521,12 @@ $total_programs = count($programs);
         <?php endif; ?>
 
     <?php endif; ?>
+
+<?php if (has_role(['admin'])): ?>
+    <p>
+        <a href="users.php">Manage users</a>
+    </p>
+<?php endif; ?>
+
 </body>
 </html>
