@@ -319,8 +319,13 @@ $isRegister = $mode === 'register';
                     </button>
                 </form>
 
+                  <p class="forgot-hint">Forgot your password? Ask an admin to reset it.</p>
+
+
                 <div class="switch-area">
                     <span>Don’t have an account?</span>
+  
+                            
 
                     <a
                         class="switch-circle"
