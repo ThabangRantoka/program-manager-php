@@ -1,0 +1,161 @@
+/* Layout: sidebar on the left, page content on the right */
+.app-shell {
+    display: flex;
+    min-height: 100vh;
+}
+
+.app-content {
+    flex: 1;
+    min-width: 0;          /* lets wide tables scroll instead of stretching the page */
+}
+
+/* Sidebar */
+.sidebar {
+    position: sticky;
+    top: 0;
+    align-self: flex-start;
+    flex: 0 0 260px;
+    height: 100vh;
+    overflow-y: auto;
+    background: #0c3552;   /* deep project blue */
+    color: #d6e4ee;
+    border-right: 1px solid #0a2b43;
+}
+
+.side-brand {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    padding: 22px 20px;
+    border-bottom: 1px solid #1a4a6b;
+}
+
+.side-logo {
+    display: grid;
+    place-items: center;
+    width: 48px;
+    height: 48px;
+    border-radius: 14px;
+    background: #8cc8ee;
+    color: #0a2a40;
+}
+
+.side-logo svg { width: 24px; height: 24px; }
+
+.side-title {
+    margin: 0;
+    font-size: 16px;
+    font-weight: 700;
+    color: #ffffff;
+}
+
+.side-subtitle {
+    margin: 2px 0 0;
+    font-size: 13px;
+    color: #9fbdd2;
+}
+
+.side-nav { padding: 18px 14px 24px; }
+
+.side-label {
+    margin: 22px 8px 8px;
+    color: #8fb0c8;
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 1.4px;
+    text-transform: uppercase;
+}
+
+.side-label:first-child { margin-top: 4px; }
+
+.sidebar .side-link {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    margin-bottom: 4px;
+    padding: 12px 14px;
+    border-radius: 12px;
+    color: #d6e4ee;
+    font-size: 15px;
+    font-weight: 500;
+    text-decoration: none;
+    transition: background 0.15s ease;
+}
+
+.sidebar .side-link svg {
+    width: 20px;
+    height: 20px;
+    flex: none;
+    fill: none;
+    stroke: currentColor;
+    stroke-width: 1.8;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+}
+
+.sidebar .side-link:hover { background: #164a6e; color: #ffffff; }
+
+.sidebar .side-link.is-active {
+    background: #8cc8ee;
+    color: #0a2a40;
+    font-weight: 700;
+}
+
+.sidebar .side-link:focus-visible {
+    outline: 3px solid #8cc8ee;
+    outline-offset: 2px;
+}
+
+.side-logo svg { fill: none; stroke: currentColor; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
+
+/* Small screens: sidebar becomes a top bar */
+@media (max-width: 900px) {
+    .app-shell { flex-direction: column; }
+
+    .sidebar {
+        position: static;
+        flex: none;
+        width: 100%;
+        height: auto;
+    }
+
+    .side-nav {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 6px;
+        padding: 14px;
+    }
+
+    .side-label { display: none; }
+    .sidebar .side-link { margin: 0; }
+}
+
+/* ---- Dashboard page adjustments (index.php) ----
+   dashboard.css styles the page through the <body>, so with a sidebar
+   the body becomes full width and the content area takes over those rules. */
+body.dashboard-page {
+    max-width: none;
+    margin: 0;
+    padding: 0;
+}
+
+.dashboard-page .app-content {
+    box-sizing: border-box;
+    max-width: 1280px;
+    margin: 0 auto;
+    padding: 36px 28px 60px;
+}
+
+.dashboard-page .app-content > h1 {
+    margin: 0 0 24px;
+    padding: 0;
+    border: 0;
+    color: var(--text);
+    font-size: clamp(28px, 4vw, 38px);
+    font-weight: 700;
+    letter-spacing: -1px;
+}
+
+.dashboard-page .app-content > h2 {
+    margin-top: 32px;
+}

@@ -58,6 +58,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $errors[] = 'Program Name must be at least 3 characters.';
     }
 
+    if (strlen($name) > 255) {
+        $errors[] = 'Program Name must not exceed 255 characters.';
+    }
+
     $durationValue = filter_var(
         $duration,
         FILTER_VALIDATE_INT,
@@ -81,7 +85,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $errors[] = 'Please select a valid channel.';
     }
 
-      if (empty($errors)) {
+    if (empty($errors)) {
         $transactionStarted = false;
 
         try {
@@ -147,7 +151,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $errors[] = 'Unable to add the program. Please try again.';
         }
     }
-    
 }
 
 // --------------------------------------------------
@@ -220,7 +223,6 @@ try {
 
 $total_programs = count($programs);
 ?>
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -336,17 +338,18 @@ $total_programs = count($programs);
         }
     </style>
 
-<link rel="stylesheet" href="dashboard.css?v=1">
-
+    <link rel="stylesheet" href="dashboard.css?v=1">
+    <link rel="stylesheet" href="sidebar.css?v=1">
 </head>
 
 <body class="dashboard-page">
-    <h1>Program Manager</h1>
-    <p>
-  <a href="change_password.php">Change password</a>
-</p>
+<div class="app-shell">
+<?php $activePage = 'overview'; include __DIR__ . '/sidebar.php'; ?>
+<div class="app-content">
 
-    <div class="login-header"> 
+    <h1>Program Manager</h1>
+
+    <div class="login-header">
         <p>
             Logged in as
             <strong><?= $escape($loggedInUser['username']) ?></strong>
@@ -435,6 +438,7 @@ $total_programs = count($programs);
                     name="name"
                     value="<?= $escape($name) ?>"
                     minlength="3"
+                    maxlength="255"
                     required
                 >
             </div>
@@ -508,13 +512,12 @@ $total_programs = count($programs);
             </p>
         <?php else: ?>
 
-
             <div
-    class="table-container"
-    role="region"
-    aria-label="Programme list"
-    tabindex="0"
->
+                class="table-container"
+                role="region"
+                aria-label="Programme list"
+                tabindex="0"
+            >
                 <table>
                     <thead>
                         <tr>
@@ -543,8 +546,8 @@ $total_programs = count($programs);
                                             Edit
                                         </a>
                                         |
-                                        <!-- This should open a confirmation page,
-                                             not delete the record on GET. -->
+                                        <!-- Opens a confirmation page;
+                                             nothing is deleted on GET. -->
                                         <a href="delete.php?id=<?= (int) $row['id'] ?>">
                                             Delete
                                         </a>
@@ -559,19 +562,7 @@ $total_programs = count($programs);
 
     <?php endif; ?>
 
-<?php if (has_role(['admin'])): ?>
-    <p>
-        <a href="users.php">Manage users</a>
-    </p>
-<?php endif; ?>
-
-<?php if (has_role('admin')): ?>
-    <a href="audit_log.php">Audit log</a>
-<?php endif; ?>
-
-<?php if (has_role('admin')): ?>
-    <a href="reset_password.php">Reset a password</a>
-<?php endif; ?>
-
+</div><!-- /.app-content -->
+</div><!-- /.app-shell -->
 </body>
 </html>

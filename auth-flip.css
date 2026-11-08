@@ -429,3 +429,10 @@ h1:focus-visible {
     transition: none !important;
   }
 }
+
+.forgot-hint {
+    margin: 14px 0 0;
+    color: #52616f;
+    font-size: 13px;
+    text-align: center;
+}
