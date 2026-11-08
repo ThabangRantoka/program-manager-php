@@ -2,6 +2,7 @@
 require_once __DIR__ . '/auth.php';
 require_once __DIR__ . '/csrf.php';   // defines csrf_field() etc. if auth.php doesn't
 require_role(['scheduler', 'admin']);
+require_once __DIR__ . '/audit.php';
 
 $errors = [];
 
@@ -77,12 +78,36 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $errors = array_values(array_unique($errors));
 
     if (empty($errors)) {
+        $transactionStarted = false;
+
         try {
+            mysqli_report(MYSQLI_REPORT_ERROR | MYSQLI_REPORT_STRICT);
+
+            $conn->begin_transaction();
+            $transactionStarted = true;
+
+            // Lock and recheck the programme before updating it.
+            $checkStmt = $conn->prepare(
+                'SELECT id FROM programs WHERE id = ? FOR UPDATE'
+            );
+            $checkStmt->bind_param('i', $id);
+            $checkStmt->execute();
+
+            $existing = $checkStmt->get_result()->fetch_assoc();
+            $checkStmt->close();
+
+            if (!$existing) {
+                throw new RuntimeException(
+                    'Programme no longer exists.'
+                );
+            }
+
             $updateStmt = $conn->prepare(
                 'UPDATE programs
                  SET name = ?, duration = ?, time_slot = ?, channel = ?
                  WHERE id = ?'
             );
+
             $updateStmt->bind_param(
                 'sissi',
                 $form['name'],
@@ -91,19 +116,50 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 $form['channel'],
                 $id
             );
-            $updated = $updateStmt->execute();
+
+            $updateStmt->execute();
+            $changed = $updateStmt->affected_rows > 0;
             $updateStmt->close();
 
-            if ($updated) {
-                $_SESSION['program_success'] = 'Programme updated successfully!';
-                header('Location: index.php', true, 303);
-                exit;
+            // Do not record an edit when nothing actually changed.
+            if ($changed) {
+                record_program_audit(
+                    $conn,
+                    current_user(),
+                    'edit',
+                    (int) $id,
+                    $form['name'],
+                    'php'
+                );
             }
 
-            $errors[] = 'Unable to update the programme. Please try again.';
-        } catch (mysqli_sql_exception $exception) {
-            error_log($exception->getMessage());
-            $errors[] = 'Unable to update the programme. Please try again.';
+            $conn->commit();
+            $transactionStarted = false;
+
+            $_SESSION['program_success'] = $changed
+                ? 'Programme updated successfully!'
+                : 'No changes were needed.';
+
+            header('Location: index.php', true, 303);
+            exit;
+        } catch (Throwable $exception) {
+            if ($transactionStarted) {
+                try {
+                    $conn->rollback();
+                } catch (Throwable $rollbackError) {
+                    error_log(
+                        'Edit rollback failed: '
+                        . $rollbackError->getMessage()
+                    );
+                }
+            }
+
+            error_log(
+                'Edit programme failed: ' . $exception->getMessage()
+            );
+
+            $errors[] =
+                'Unable to update the programme. Refresh and try again.';
         }
     }
 }

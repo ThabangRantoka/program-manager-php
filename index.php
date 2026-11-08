@@ -565,5 +565,9 @@ $total_programs = count($programs);
     </p>
 <?php endif; ?>
 
+<?php if (has_role('admin')): ?>
+    <a href="audit_log.php">Audit log</a>
+<?php endif; ?>
+
 </body>
 </html>

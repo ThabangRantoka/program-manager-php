@@ -44,3 +44,4 @@ backups/
 /program-manager-angular/.vscode/mcp.json
 
 !/migrations/001_login_attempts.sql
+!/migrations/002_audit_logs.sqlconfig.php

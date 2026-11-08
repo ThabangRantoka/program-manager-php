@@ -1,8 +1,9 @@
 <section class="login-page">
   <div class="decoration circle-one" aria-hidden="true"></div>
   <div class="decoration circle-two" aria-hidden="true"></div>
+  <div class="decoration circle-three" aria-hidden="true"></div>
 
-  <main class="login-card">
+  <main class="login-card" aria-labelledby="login-heading">
     <div class="lock-icon" aria-hidden="true">
       <svg viewBox="0 0 24 24" fill="none">
         <rect
@@ -18,63 +19,89 @@
           stroke="currentColor"
           stroke-width="2.5"
         />
-        <circle cx="12" cy="15" r="1.5" fill="#e8edef" />
+        <circle cx="12" cy="15" r="1.5" fill="#e7ebf0" />
       </svg>
     </div>
 
-    <p class="brand">PROGRAM MANAGER</p>
-    <h1>Welcome back</h1>
+    <h1 id="login-heading">Welcome</h1>
     <p class="subtitle">Log in to manage your programmes.</p>
 
     @if (registered) {
-      <p class="success" role="status">
+      <p class="success-message" role="status">
         Account created. Please log in.
       </p>
     }
 
-    <form (ngSubmit)="onSubmit()" #loginForm="ngForm">
+    <form
+      (ngSubmit)="onSubmit()"
+      #loginForm="ngForm"
+      [attr.aria-busy]="loading()"
+    >
       <div class="field">
-        <label for="username">Username</label>
+        <label class="sr-only" for="username">Username</label>
 
         <input
           id="username"
           name="username"
           type="text"
-          placeholder="Enter your username"
+          placeholder="Username"
           [(ngModel)]="username"
           autocomplete="username"
+          autocapitalize="none"
+          spellcheck="false"
           maxlength="50"
           [disabled]="loading()"
           required
         />
       </div>
 
-      <div class="field">
-        <label for="password">Password</label>
+      <div class="field password-field">
+        <label class="sr-only" for="password">Password</label>
 
-        <div class="password-field">
-          <input
-            id="password"
-            name="password"
-            [type]="showPassword() ? 'text' : 'password'"
-            placeholder="Enter your password"
-            [(ngModel)]="password"
-            autocomplete="current-password"
-            [disabled]="loading()"
-            required
-          />
+        <input
+          id="password"
+          name="password"
+          [type]="showPassword() ? 'text' : 'password'"
+          placeholder="Password"
+          [(ngModel)]="password"
+          autocomplete="current-password"
+          [disabled]="loading()"
+          required
+        />
 
-          <button
-            type="button"
-            class="password-toggle"
-            aria-controls="password"
-            [attr.aria-label]="showPassword() ? 'Hide password' : 'Show password'"
-            [attr.aria-pressed]="showPassword()"
-            (click)="showPassword.set(!showPassword())"
-          >
-            {{ showPassword() ? 'Hide' : 'Show' }}
-          </button>
-        </div>
+        <button
+          type="button"
+          class="password-toggle"
+          aria-controls="password"
+          [attr.aria-label]="showPassword() ? 'Hide password' : 'Show password'"
+          [attr.aria-pressed]="showPassword()"
+          [disabled]="loading()"
+          (click)="showPassword.set(!showPassword())"
+        >
+          <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
+            <path
+              d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7S2 12 2 12Z"
+              stroke="currentColor"
+              stroke-width="1.7"
+              stroke-linejoin="round"
+            />
+            <circle
+              cx="12"
+              cy="12"
+              r="3"
+              stroke="currentColor"
+              stroke-width="1.7"
+            />
+            @if (showPassword()) {
+              <path
+                d="m4 4 16 16"
+                stroke="currentColor"
+                stroke-width="1.7"
+                stroke-linecap="round"
+              />
+            }
+          </svg>
+        </button>
       </div>
 
       @if (errorMessage()) {
@@ -88,13 +115,16 @@
         type="submit"
         [disabled]="loginForm.invalid || loading()"
       >
-        {{ loading() ? 'Logging in...' : 'Log in' }}
+        <span>{{ loading() ? 'Logging in...' : 'Log in' }}</span>
       </button>
     </form>
 
-    <p class="account-note">
-      Don’t have an account?
-      <a [href]="registrationUrl">Create account</a>
-    </p>
+    <div class="account-note">
+      <p>Don’t have an account?</p>
+      <a class="register-link" [href]="registrationUrl">
+        Create account
+        <span class="plus-icon" aria-hidden="true">+</span>
+      </a>
+    </div>
   </main>
 </section>
