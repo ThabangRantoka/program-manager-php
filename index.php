@@ -1,6 +1,7 @@
 <?php
 
 require_once __DIR__ . '/auth.php';
+require_once __DIR__ . '/audit.php';
 
 require_login();
 
@@ -80,16 +81,19 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $errors[] = 'Please select a valid channel.';
     }
 
-    if (empty($errors)) {
+      if (empty($errors)) {
+        $transactionStarted = false;
+
         try {
+            mysqli_report(MYSQLI_REPORT_ERROR | MYSQLI_REPORT_STRICT);
+
+            $conn->begin_transaction();
+            $transactionStarted = true;
+
             $stmt = $conn->prepare(
                 'INSERT INTO programs (name, duration, time_slot, channel)
                  VALUES (?, ?, ?, ?)'
             );
-
-            if ($stmt === false) {
-                throw new RuntimeException($conn->error);
-            }
 
             $stmt->bind_param(
                 'siss',
@@ -99,21 +103,51 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 $channel
             );
 
-            if (!$stmt->execute()) {
-                throw new RuntimeException($stmt->error);
-            }
+            $stmt->execute();
+
+            // Capture the programme ID before inserting the audit entry.
+            $programId = (int) $conn->insert_id;
 
             $stmt->close();
 
-            // Redirect so refreshing does not repeat the INSERT.
+            // Identity comes from the authenticated session, not the form.
+            record_program_audit(
+                $conn,
+                $loggedInUser,
+                'add',
+                $programId,
+                $name,
+                'php'
+            );
+
+            // Save both the programme and its audit entry together.
+            $conn->commit();
+            $transactionStarted = false;
+
             $_SESSION['program_success'] = 'Program added successfully!';
+
             header('Location: index.php', true, 303);
             exit;
-        } catch (mysqli_sql_exception | RuntimeException $exception) {
-            error_log('Add program failed: ' . $exception->getMessage());
+        } catch (Throwable $exception) {
+            if ($transactionStarted) {
+                try {
+                    $conn->rollback();
+                } catch (Throwable $rollbackError) {
+                    error_log(
+                        'Add program rollback failed: '
+                        . $rollbackError->getMessage()
+                    );
+                }
+            }
+
+            error_log(
+                'Add program failed: ' . $exception->getMessage()
+            );
+
             $errors[] = 'Unable to add the program. Please try again.';
         }
     }
+    
 }
 
 // --------------------------------------------------
@@ -308,8 +342,11 @@ $total_programs = count($programs);
 
 <body class="dashboard-page">
     <h1>Program Manager</h1>
+    <p>
+  <a href="change_password.php">Change password</a>
+</p>
 
-    <div class="login-header">
+    <div class="login-header"> 
         <p>
             Logged in as
             <strong><?= $escape($loggedInUser['username']) ?></strong>
@@ -521,5 +558,16 @@ $total_programs = count($programs);
         <?php endif; ?>
 
     <?php endif; ?>
+
+<?php if (has_role(['admin'])): ?>
+    <p>
+        <a href="users.php">Manage users</a>
+    </p>
+<?php endif; ?>
+
+<?php if (has_role('admin')): ?>
+    <a href="audit_log.php">Audit log</a>
+<?php endif; ?>
+
 </body>
 </html>

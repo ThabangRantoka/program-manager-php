@@ -2,6 +2,7 @@
 require_once __DIR__ . '/auth.php';
 require_once __DIR__ . '/csrf.php';   // defines csrf_field() etc. if auth.php doesn't
 require_role(['scheduler', 'admin']);
+require_once __DIR__ . '/audit.php';
 
 $id = filter_var(
     $_GET['id'] ?? null,
@@ -41,22 +42,57 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         http_response_code(400);
         $error = 'Programme ID mismatch. Nothing was deleted.';
     } else {
-        try {
-            $deleteStmt = $conn->prepare('DELETE FROM programs WHERE id = ?');
-            $deleteStmt->bind_param('i', $id);
-            $deleted = $deleteStmt->execute();
-            $deleteStmt->close();
+        $transactionStarted = false;
 
-            if ($deleted) {
+        try {
+            mysqli_report(MYSQLI_REPORT_ERROR | MYSQLI_REPORT_STRICT);
+
+            $conn->begin_transaction();
+            $transactionStarted = true;
+
+            // Lock the row and read its name now. After the delete it is gone.
+            $lockStmt = $conn->prepare(
+                'SELECT name FROM programs WHERE id = ? FOR UPDATE'
+            );
+            $lockStmt->bind_param('i', $id);
+            $lockStmt->execute();
+            $existing = $lockStmt->get_result()->fetch_assoc();
+            $lockStmt->close();
+
+            if (!$existing) {
+                $conn->rollback();
+                $transactionStarted = false;
+                http_response_code(404);
+                $error = 'This programme no longer exists. Nothing was deleted.';
+            } else {
+                $deleteStmt = $conn->prepare('DELETE FROM programs WHERE id = ?');
+                $deleteStmt->bind_param('i', $id);
+                $deleteStmt->execute();
+                $deleteStmt->close();
+
+                // Same transaction: no delete without a log entry.
+                record_program_audit(
+                    $conn,
+                    current_user(),
+                    'delete',
+                    $id,
+                    (string) $existing['name'],
+                    'php'
+                );
+
+                $conn->commit();
+                $transactionStarted = false;
+
                 $_SESSION['program_success'] = 'Programme deleted successfully!';
                 header('Location: index.php', true, 303);
                 exit;
             }
-
-            $error = 'Unable to delete the programme. Please try again.';
-        } catch (mysqli_sql_exception $exception) {
+        } catch (Throwable $exception) {
+            if ($transactionStarted) {
+                $conn->rollback();
+            }
             error_log($exception->getMessage());
-            $error = 'Unable to delete the programme. It may be linked to other records.';
+            $error = 'Unable to delete the programme. Please try again.';
         }
     }
 }

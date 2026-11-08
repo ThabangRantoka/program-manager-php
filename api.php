@@ -44,6 +44,7 @@ if (!in_array($method, ['GET', 'POST'], true)) {
 try {
     require_once __DIR__ . '/config.php';
     require_once __DIR__ . '/api_auth.php';
+    require_once __DIR__ . '/audit.php';
 
     if (!isset($conn) || !($conn instanceof mysqli)) {
         throw new RuntimeException('Database connection is unavailable.');
@@ -151,30 +152,49 @@ try {
             ]);
         }
 
-        // Save the validated programme.
-        $stmt = $conn->prepare(
-            'INSERT INTO programs (name, duration, time_slot, channel)
-             VALUES (?, ?, ?, ?)'
-        );
+        // Save the programme and its audit entry in one transaction.
+        $transactionStarted = false;
 
-        if ($stmt === false) {
-            throw new RuntimeException('Could not prepare the INSERT query.');
+        try {
+            $conn->begin_transaction();
+            $transactionStarted = true;
+
+            $stmt = $conn->prepare(
+                'INSERT INTO programs (name, duration, time_slot, channel)
+                 VALUES (?, ?, ?, ?)'
+            );
+
+            if ($stmt === false) {
+                throw new RuntimeException('Could not prepare the INSERT query.');
+            }
+
+            $stmt->bind_param('siss', $name, $duration, $time_slot, $channel);
+
+            if (!$stmt->execute()) {
+                throw new RuntimeException('Could not insert the programme.');
+            }
+
+            $newId = (int) $conn->insert_id;
+            $stmt->close();
+
+            // $user comes from api_require_role(): id, username, role.
+            record_program_audit(
+                $conn,
+                $user,
+                'add',
+                $newId,
+                $name,
+                'api'
+            );
+
+            $conn->commit();
+            $transactionStarted = false;
+        } catch (Throwable $saveError) {
+            if ($transactionStarted) {
+                $conn->rollback();
+            }
+            throw $saveError; // the outer catch logs it and returns a 500
         }
-
-        $stmt->bind_param(
-            'siss',
-            $name,
-            $duration,
-            $time_slot,
-            $channel
-        );
-
-        if (!$stmt->execute()) {
-            throw new RuntimeException('Could not insert the programme.');
-        }
-
-        $newId = (int) $conn->insert_id;
-        $stmt->close();
 
         send_json(201, [
             'success' => true,
