@@ -308,8 +308,11 @@ $total_programs = count($programs);
 
 <body class="dashboard-page">
     <h1>Program Manager</h1>
+    <p>
+  <a href="change_password.php">Change password</a>
+</p>
 
-    <div class="login-header">
+    <div class="login-header"> 
         <p>
             Logged in as
             <strong><?= $escape($loggedInUser['username']) ?></strong>
