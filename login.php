@@ -1,6 +1,8 @@
 <?php
 
 require_once __DIR__ . '/auth.php';
+require_once __DIR__ . '/login_rate_limit.php';
+
 
 if (current_user() !== null) {
     header('Location: index.php');
@@ -31,35 +33,58 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         if ($username === '' || $password === '') {
             $errors[] = 'Please enter your username and password.';
         } else {
-            try {
-                $stmt = $conn->prepare(
-                    'SELECT id, password_hash
-                     FROM users
-                     WHERE username = ?'
+
+                        try {
+                $result = rate_limited_login(
+                    $conn,
+                    $username,
+                    $password
                 );
 
-                $stmt->bind_param('s', $username);
-                $stmt->execute();
-
-                $user = $stmt->get_result()->fetch_assoc();
-                $stmt->close();
-
-                if (
-                    $user &&
-                    password_verify($password, $user['password_hash'])
-                ) {
+                if ($result['status'] === 'success') {
                     session_regenerate_id(true);
-                    $_SESSION['user_id'] = (int) $user['id'];
 
-                    header('Location: index.php');
+                    $_SESSION['user_id'] =
+                        (int) $result['user']['id'];
+
+                    // Create a fresh CSRF token after login.
+                    unset($_SESSION['csrf_token']);
+
+                    header('Location: index.php', true, 303);
                     exit;
                 }
 
-                $errors[] = 'Invalid username or password.';
-            } catch (mysqli_sql_exception $error) {
-                error_log($error->getMessage());
-                $errors[] = 'Login is temporarily unavailable.';
+                if ($result['status'] === 'blocked') {
+                    $seconds = max(
+                        1,
+                        (int) $result['retry_after']
+                    );
+
+                    $minutes = (int) ceil($seconds / 60);
+
+                    http_response_code(429);
+                    header('Retry-After: ' . $seconds);
+
+                    $errors[] =
+                        'Too many failed login attempts. '
+                        . 'Try again in about '
+                        . $minutes
+                        . ' minute(s).';
+                } else {
+                    $errors[] = 'Invalid username or password.';
+                }
+            } catch (Throwable $error) {
+                error_log(
+                    'PHP login failed: ' . $error->getMessage()
+                );
+
+                http_response_code(500);
+
+                $errors[] =
+                    'Login is temporarily unavailable. '
+                    . 'Please try again later.';
             }
+
         }
     } else {
         $confirmation = is_string($_POST['confirm_password'] ?? null)
