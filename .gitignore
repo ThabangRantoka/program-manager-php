@@ -42,3 +42,5 @@ backups/
 .vscode/mcp.json
 
 /program-manager-angular/.vscode/mcp.json
+
+!/migrations/001_login_attempts.sql
