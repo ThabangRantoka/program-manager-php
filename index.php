@@ -569,5 +569,9 @@ $total_programs = count($programs);
     <a href="audit_log.php">Audit log</a>
 <?php endif; ?>
 
+<?php if (has_role('admin')): ?>
+    <a href="reset_password.php">Reset a password</a>
+<?php endif; ?>
+
 </body>
 </html>
