@@ -11,72 +11,6 @@ permissions:
   contents: read
 
 jobs:
-
-  deploy:
-    name: Deploy to AWS EC2
-    runs-on: ubuntu-latest
-    needs: [php-check, angular-build]
-    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
-
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
-
-      - name: Set up Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: '24'
-          cache: npm
-          cache-dependency-path: program-manager-angular/package-lock.json
-
-      - name: Build Angular
-        working-directory: program-manager-angular
-        run: |
-          npm ci
-          npm run build -- --configuration production --base-href /app/
-
-      - name: Configure SSH
-        env:
-          SSH_KEY: ${{ secrets.EC2_SSH_KEY }}
-          EC2_HOST: ${{ secrets.EC2_HOST }}
-        run: |
-          mkdir -p ~/.ssh
-          chmod 700 ~/.ssh
-          printf '%s\n' "$SSH_KEY" > ~/.ssh/id_ed25519
-          chmod 600 ~/.ssh/id_ed25519
-          ssh-keyscan -H "$EC2_HOST" > ~/.ssh/known_hosts
-          chmod 600 ~/.ssh/known_hosts
-
-      - name: Upload Angular and PHP
-        env:
-          EC2_HOST: ${{ secrets.EC2_HOST }}
-          EC2_USER: ${{ secrets.EC2_USER }}
-        run: |
-          ANGULAR_DIST=$(find program-manager-angular/dist -name index.html -printf '%h\n' | head -n 1)
-          test -n "$ANGULAR_DIST"
-
-          rsync -r --delete \
-            "$ANGULAR_DIST/" \
-            "$EC2_USER@$EC2_HOST:/home/deployer/releases/current/angular/"
-
-          rsync -r --delete \
-            --exclude='.git/' \
-            --exclude='.github/' \
-            --exclude='program-manager-angular/' \
-            --exclude='config.php' \
-            --exclude='database.php' \
-            --exclude='.env' \
-            ./ "$EC2_USER@$EC2_HOST:/home/deployer/releases/current/php/"
-
-      - name: Publish application
-        env:
-          EC2_HOST: ${{ secrets.EC2_HOST }}
-          EC2_USER: ${{ secrets.EC2_USER }}
-        run: |
-          ssh "$EC2_USER@$EC2_HOST" \
-            "sudo -n -u pm-publisher /usr/local/sbin/deploy-program-manager"
-
-
   php-check:
     name: Check PHP Syntax
     runs-on: ubuntu-latest
@@ -120,4 +54,116 @@ jobs:
         run: npm ci
 
       - name: Build Angular for production
-        run: npm run build -- --configuration production --base-href /app/
+        run: |
+          npm run build -- --configuration production --base-href /app/
+
+  deploy:
+    name: Deploy to AWS EC2
+    runs-on: ubuntu-latest
+    needs: [php-check, angular-build]
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+          cache: npm
+          cache-dependency-path: program-manager-angular/package-lock.json
+
+      - name: Build Angular
+        working-directory: program-manager-angular
+        run: |
+          npm ci
+          npm run build -- --configuration production --base-href /app/
+
+      - name: Configure SSH
+        env:
+          SSH_KEY: ${{ secrets.EC2_SSH_KEY }}
+          EC2_HOST: ${{ secrets.EC2_HOST }}
+        run: |
+          set -euo pipefail
+
+          mkdir -p ~/.ssh
+          chmod 700 ~/.ssh
+
+          test -n "$SSH_KEY" || {
+            echo "ERROR: EC2_SSH_KEY secret is empty"
+            exit 1
+          }
+
+          test -n "$EC2_HOST" || {
+            echo "ERROR: EC2_HOST secret is empty"
+            exit 1
+          }
+
+          printf '%s\n' "$SSH_KEY" > ~/.ssh/id_ed25519
+          chmod 600 ~/.ssh/id_ed25519
+
+          ssh-keygen -y -P "" -f ~/.ssh/id_ed25519 >/dev/null || {
+            echo "ERROR: Invalid or passphrase-protected SSH key"
+            exit 1
+          }
+
+          ssh-keyscan -T 15 -t ed25519 "$EC2_HOST" \
+            > ~/.ssh/known_hosts || {
+            echo "ERROR: Cannot retrieve EC2 SSH host key"
+            echo "Check EC2_HOST and AWS port 22 access"
+            exit 1
+          }
+
+          EXPECTED="SHA256:7KBZM5bT7qjyuGyvSBZIl9uA0mzX8osLthYsIgEYK5g"
+          ACTUAL=$(ssh-keygen -lf ~/.ssh/known_hosts -E sha256 | awk '{print $2}')
+
+          if [ "$ACTUAL" != "$EXPECTED" ]; then
+            echo "ERROR: EC2 SSH host fingerprint mismatch"
+            exit 1
+          fi
+
+          chmod 600 ~/.ssh/known_hosts
+
+      - name: Upload Angular and PHP
+        env:
+          EC2_HOST: ${{ secrets.EC2_HOST }}
+          EC2_USER: ${{ secrets.EC2_USER }}
+        run: |
+          set -euo pipefail
+
+          ANGULAR_DIST=$(find program-manager-angular/dist \
+            -name index.html -printf '%h\n' | head -n 1)
+
+          test -n "$ANGULAR_DIST"
+
+          SSH_OPTS="-o BatchMode=yes -o IdentitiesOnly=yes"
+
+          rsync -r --delete \
+            -e "ssh $SSH_OPTS" \
+            "$ANGULAR_DIST/" \
+            "$EC2_USER@$EC2_HOST:/home/deployer/releases/current/angular/"
+
+          rsync -r --delete \
+            -e "ssh $SSH_OPTS" \
+            --exclude='.git/' \
+            --exclude='.github/' \
+            --exclude='program-manager-angular/' \
+            --exclude='config.php' \
+            --exclude='database.php' \
+            --exclude='.env' \
+            --exclude='*.sql' \
+            --exclude='*.sql.gz' \
+            --exclude='*.pem' \
+            --exclude='*.key' \
+            --exclude='uploads/' \
+            ./ "$EC2_USER@$EC2_HOST:/home/deployer/releases/current/php/"
+
+      - name: Publish application
+        env:
+          EC2_HOST: ${{ secrets.EC2_HOST }}
+          EC2_USER: ${{ secrets.EC2_USER }}
+        run: |
+          ssh -o BatchMode=yes -o IdentitiesOnly=yes \
+            "$EC2_USER@$EC2_HOST" \
+            "sudo -n -u pm-publisher /usr/local/sbin/deploy-program-manager"
