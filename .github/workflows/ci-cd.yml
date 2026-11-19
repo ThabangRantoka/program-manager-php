@@ -11,6 +11,72 @@ permissions:
   contents: read
 
 jobs:
+
+  deploy:
+    name: Deploy to AWS EC2
+    runs-on: ubuntu-latest
+    needs: [php-check, angular-build]
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+          cache: npm
+          cache-dependency-path: program-manager-angular/package-lock.json
+
+      - name: Build Angular
+        working-directory: program-manager-angular
+        run: |
+          npm ci
+          npm run build -- --configuration production --base-href /app/
+
+      - name: Configure SSH
+        env:
+          SSH_KEY: ${{ secrets.EC2_SSH_KEY }}
+          EC2_HOST: ${{ secrets.EC2_HOST }}
+        run: |
+          mkdir -p ~/.ssh
+          chmod 700 ~/.ssh
+          printf '%s\n' "$SSH_KEY" > ~/.ssh/id_ed25519
+          chmod 600 ~/.ssh/id_ed25519
+          ssh-keyscan -H "$EC2_HOST" > ~/.ssh/known_hosts
+          chmod 600 ~/.ssh/known_hosts
+
+      - name: Upload Angular and PHP
+        env:
+          EC2_HOST: ${{ secrets.EC2_HOST }}
+          EC2_USER: ${{ secrets.EC2_USER }}
+        run: |
+          ANGULAR_DIST=$(find program-manager-angular/dist -name index.html -printf '%h\n' | head -n 1)
+          test -n "$ANGULAR_DIST"
+
+          rsync -r --delete \
+            "$ANGULAR_DIST/" \
+            "$EC2_USER@$EC2_HOST:/home/deployer/releases/current/angular/"
+
+          rsync -r --delete \
+            --exclude='.git/' \
+            --exclude='.github/' \
+            --exclude='program-manager-angular/' \
+            --exclude='config.php' \
+            --exclude='database.php' \
+            --exclude='.env' \
+            ./ "$EC2_USER@$EC2_HOST:/home/deployer/releases/current/php/"
+
+      - name: Publish application
+        env:
+          EC2_HOST: ${{ secrets.EC2_HOST }}
+          EC2_USER: ${{ secrets.EC2_USER }}
+        run: |
+          ssh "$EC2_USER@$EC2_HOST" \
+            "sudo -n -u pm-publisher /usr/local/sbin/deploy-program-manager"
+
+
   php-check:
     name: Check PHP Syntax
     runs-on: ubuntu-latest
