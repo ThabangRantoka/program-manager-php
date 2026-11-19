@@ -1,0 +1,40 @@
+services:
+  db:
+    image: mysql:8.0
+    container_name: program-manager-db
+    restart: unless-stopped
+    environment:
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
+      MYSQL_DATABASE: ${MYSQL_DATABASE}
+      MYSQL_USER: ${MYSQL_USER}
+      MYSQL_PASSWORD: ${MYSQL_PASSWORD}
+    volumes:
+      - mysql_data:/var/lib/mysql
+
+  php:
+    build:
+      context: .
+      dockerfile: Dockerfile.php
+    container_name: program-manager-php
+    ports:
+      - "8080:80"
+    environment:
+      DB_HOST: db
+      DB_USER: ${MYSQL_USER}
+      DB_PASSWORD: ${MYSQL_PASSWORD}
+      DB_NAME: ${MYSQL_DATABASE}
+    depends_on:
+      - db
+
+  angular:
+    build:
+      context: ./program-manager-angular
+      dockerfile: Dockerfile
+    container_name: program-manager-angular
+    ports:
+      - "4200:80"
+    depends_on:
+      - php
+
+volumes:
+  mysql_data:

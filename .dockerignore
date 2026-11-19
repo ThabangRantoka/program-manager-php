@@ -1,0 +1,13 @@
+.git
+.gitignore
+**/node_modules
+**/dist
+**/.angular
+**/.git
+*.log
+.env
+.env.*
+.vscode
+program_manager_backup.sql
+program-manager-angular/
+.github/

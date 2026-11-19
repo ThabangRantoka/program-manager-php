@@ -45,3 +45,11 @@ backups/
 
 !/migrations/001_login_attempts.sql
 !/migrations/002_audit_logs.sql
+
+# Private environment variables
+.env
+.env.*
+!.env.example
+
+# Database backups
+program_manager_backup.sql
