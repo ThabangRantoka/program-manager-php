@@ -7,6 +7,13 @@ pipeline {
     }
 
     stages {
+        stage('Check NodeJS') {
+            steps {
+                sh 'node --version'
+                sh 'npm --version'
+            }
+        }
+
         stage('Checkout') {
             steps {
                 echo 'Checking out Program Manager project...'
@@ -33,4 +40,5 @@ pipeline {
         }
     }
 }
+
 
