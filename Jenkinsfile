@@ -41,13 +41,27 @@ pipeline {
                 }
             }
         }
+
+        stage('Build Docker Images') {
+            agent {
+                label 'docker'
+            }
+
+            steps {
+                checkout scm
+
+                echo 'Building PHP backend Docker image...'
+                sh 'docker build -t program-manager-backend:latest -f Dockerfile.php .'
+
+                echo 'Building Angular frontend Docker image...'
+                sh 'docker build -t program-manager-frontend:latest ./program-manager-angular'
+            }
+        }
+
         stage('Success') {
             steps {
-                echo 'Program Manager Jenkins pipeline completed successfully!'
+                echo 'Program Manager Jenkins CI/CD pipeline completed successfully!'
             }
         }
     }
 }
-
-
-
