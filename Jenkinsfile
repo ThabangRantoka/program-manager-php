@@ -33,6 +33,14 @@ pipeline {
             }
         }
 
+        stage('Build Angular') {
+            steps {
+                dir('program-manager-angular') {
+                    sh 'npm ci'
+                    sh 'npm run build -- --configuration production --base-href /app/'
+                }
+            }
+        }
         stage('Success') {
             steps {
                 echo 'Program Manager Jenkins pipeline completed successfully!'
@@ -40,5 +48,6 @@ pipeline {
         }
     }
 }
+
 
 
