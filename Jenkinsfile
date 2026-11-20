@@ -39,6 +39,9 @@ pipeline {
                     sh 'npm ci'
                     sh 'npm run build -- --configuration production --base-href /app/'
                 }
+
+                stash name: 'angular-dist',
+                      includes: 'program-manager-angular/dist/**'
             }
         }
 
@@ -49,6 +52,8 @@ pipeline {
 
             steps {
                 checkout scm
+
+                unstash 'angular-dist'
 
                 echo 'Building PHP backend Docker image...'
                 sh 'docker build -t program-manager-backend:latest -f Dockerfile.php .'
