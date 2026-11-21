@@ -12,9 +12,7 @@ services:
       - mysql_data:/var/lib/mysql
 
   php:
-    build:
-      context: .
-      dockerfile: Dockerfile.php
+    image: program-manager-backend:latest
     container_name: program-manager-php
     ports:
       - "8080:80"
@@ -27,9 +25,7 @@ services:
       - db
 
   angular:
-    build:
-      context: ./program-manager-angular
-      dockerfile: Dockerfile
+    image: program-manager-frontend:latest
     container_name: program-manager-angular
     ports:
       - "4200:80"
