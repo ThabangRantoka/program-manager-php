@@ -61,6 +61,22 @@ pipeline {
             }
         }
 
+        stage('Deploy Program Manager') {
+            agent {
+                label 'docker'
+            }
+
+            steps {
+                echo 'Deploying PHP and Angular...'
+
+                sh '''
+                    cd /deployment
+                    docker compose -p program-manager up -d --no-deps --no-build --force-recreate php angular
+                '''
+
+                echo 'Deployment completed!'
+            }
+        }
         stage('Success') {
             steps {
                 echo 'Program Manager Jenkins CI/CD pipeline completed successfully!'
@@ -68,5 +84,6 @@ pipeline {
         }
     }
 }
+
 
 
